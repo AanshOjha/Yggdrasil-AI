@@ -64,6 +64,20 @@ SECRET_KEY=
 DATABASE_URL=
 ```
 
+**Start the PostgreSQL Database (Docker):**
+We provide a `docker-compose.yml` to easily spin up a PostgreSQL instance.
+```bash
+cd backend
+docker-compose up -d
+```
+This starts PostgreSQL on port `5432` (User: `yggdrasil`, Password: `password123`, DB: `yggdrasil`).
+*Note: Make sure to set `DATABASE_URL=postgresql://yggdrasil:password123@localhost:5432/yggdrasil` in your `.env`.*
+
+**Run Database Migrations (if applicable):**
+```bash
+alembic upgrade head
+```
+
 **Start the Backend Server:**
 ```bash
 cd backend
