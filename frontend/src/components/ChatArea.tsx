@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
-import type { Message as MessageType } from '../types';
+import React, { useRef, useEffect } from 'react';
 import Message from './Message';
 import ChatInput from './ChatInput';
+import type { Message as MessageType } from '../types';
 
 interface ChatAreaProps {
   messages: MessageType[];
@@ -9,23 +9,31 @@ interface ChatAreaProps {
 }
 
 export default function ChatArea({ messages, onSendMessage }: ChatAreaProps) {
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    scrollToBottom();
   }, [messages]);
 
   return (
     <div className="chat-area">
       <div className="messages-container">
-        {messages.map((message) => (
-          <Message key={message.id} message={message} />
-        ))}
-        <div ref={bottomRef} />
+        {messages.length === 0 ? (
+          <div className="empty-state">
+            <h3>How can I help you today?</h3>
+          </div>
+        ) : (
+          messages.map((msg) => (
+            <Message key={msg.id} message={msg} />
+          ))
+        )}
+        <div ref={messagesEndRef} />
       </div>
-      <div className="input-container">
-        <ChatInput onSendMessage={onSendMessage} />
-      </div>
+      <ChatInput onSendMessage={onSendMessage} />
     </div>
   );
 }

@@ -1,45 +1,35 @@
-import { useState, useRef } from 'react';
+import React, { useState } from 'react';
+import { Info, Menu } from 'lucide-react';
 
 interface TopBarProps {
-  title: string;
+  onOpenMobileMenu: () => void;
 }
 
-export default function TopBar({ title }: TopBarProps) {
-  const [clickCount, setClickCount] = useState(0);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  const handleBannerClick = () => {
-    const newCount = clickCount + 1;
-    setClickCount(newCount);
-    
-    if (newCount === 3) {
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.play().catch(e => console.error("Audio play failed. Make sure the file exists at /easter-egg.mp3:", e));
-      }
-      setClickCount(0); // Reset after playing
-    }
-  };
+export default function TopBar({ onOpenMobileMenu }: TopBarProps) {
+  const [showInfo, setShowInfo] = useState(false);
 
   return (
-    <div className="top-bar glass" onClick={handleBannerClick} title="Click me!">
-      {/* 
-        The background image is loaded from the public folder. 
-        Place your image at "frontend/public/banner-bg.jpg" or change the URL here.
-      */}
-      <div 
-        className="top-bar-bg" 
-        style={{ backgroundImage: "url('/banner-bg.jpg')" }}
-      ></div>
-      <div className="top-bar-content">
-        <h1>{title}</h1>
+    <header className="top-bar">
+      <div className="top-bar-title">
+        <button className="icon-btn mobile-menu-btn" onClick={onOpenMobileMenu} style={{ border: 'none', boxShadow: 'none' }}>
+          <Menu size={24} />
+        </button>
+        AI Chat Helper
       </div>
-      
-      {/* 
-        The custom audio is loaded from the public folder. 
-        Place your audio file at "frontend/public/easter-egg.mp3".
-      */}
-      <audio ref={audioRef} src="/easter-egg.mp3" preload="auto" />
-    </div>
+      <div className="top-bar-actions">
+        <button 
+          className="icon-btn" 
+          onClick={() => setShowInfo(!showInfo)}
+        >
+          <Info size={20} />
+        </button>
+        {showInfo && (
+          <div className="info-popup">
+            Made by Aansh Ojha.<br/>
+            Checkout my <a href="https://linkedin.com/in/aanshojha" target="_blank" rel="noreferrer">LinkedIn</a> and <a href="https://github.com/aanshojha" target="_blank" rel="noreferrer">GitHub</a>.
+          </div>
+        )}
+      </div>
+    </header>
   );
 }

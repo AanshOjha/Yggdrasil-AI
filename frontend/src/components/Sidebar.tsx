@@ -1,4 +1,5 @@
-import { MessageSquarePlus, Edit2, Trash2, Moon, Sun, MessageCircle, LogOut } from 'lucide-react';
+import React from 'react';
+import { MessageSquarePlus, Edit2, Trash2, LogOut, PanelLeftClose, PanelLeftOpen, MessageCircle } from 'lucide-react';
 import type { Chat } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -10,8 +11,10 @@ interface SidebarProps {
   onCreateChat: () => void;
   onRenameChat: (id: string, newTitle: string) => void;
   onDeleteChat: (id: string) => void;
-  theme: 'light' | 'dark';
-  toggleTheme: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+  isMobileOpen: boolean;
+  onCloseMobile: () => void;
 }
 
 export default function Sidebar({
@@ -21,11 +24,18 @@ export default function Sidebar({
   onCreateChat,
   onRenameChat,
   onDeleteChat,
-  theme,
-  toggleTheme
+  isCollapsed,
+  onToggleCollapse,
+  isMobileOpen,
+  onCloseMobile
 }: SidebarProps) {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const handleRename = (e: React.MouseEvent, chat: Chat) => {
     e.stopPropagation();
@@ -35,68 +45,113 @@ export default function Sidebar({
     }
   };
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this chat?')) {
-      onDeleteChat(id);
+  const playEasterEggAudio = () => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+      oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+      
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.05);
+      gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.5);
+    } catch (e) {
+      console.error("Audio playback failed", e);
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   return (
-    <aside className="sidebar glass-panel">
-      <div className="sidebar-header">
-        <button className="new-chat-btn" onClick={onCreateChat}>
-          <MessageSquarePlus size={20} />
-          New Chat
-        </button>
-      </div>
-
-      <div className="chat-list">
-        {chats.map(chat => (
-          <div
-            key={chat.id}
-            className={`chat-item ${chat.id === currentChatId ? 'active' : ''}`}
-            onClick={() => onSelectChat(chat.id)}
-          >
-            <MessageCircle size={18} className="chat-icon" />
-            <span className="chat-item-title">{chat.title}</span>
-            <div className="chat-item-actions">
-              <button 
-                className="action-btn" 
-                onClick={(e) => handleRename(e, chat)}
-                title="Rename"
-              >
-                <Edit2 size={16} />
-              </button>
-              <button 
-                className="action-btn" 
-                onClick={(e) => handleDelete(e, chat.id)}
-                title="Delete"
-              >
-                <Trash2 size={16} />
-              </button>
+    <>
+      <div 
+        className={`sidebar-overlay ${isMobileOpen ? 'show' : ''}`} 
+        onClick={onCloseMobile}
+      />
+      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
+        <div className="sidebar-header-top">
+          <div className="sidebar-brand" onClick={playEasterEggAudio}>
+            <div className="brand-icon">
+              <span>Y</span>
             </div>
+            <span className="brand-name">YGGDRASIL AI</span>
           </div>
-        ))}
-      </div>
-
-      <div className="sidebar-footer">
-        <div className="theme-toggle">
-          <button className="theme-btn" onClick={toggleTheme}>
-            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          <button className="toggle-sidebar-btn" onClick={onToggleCollapse}>
+            {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
           </button>
         </div>
-        <button className="logout-btn" onClick={handleLogout}>
-          <LogOut size={20} />
-          Logout
-        </button>
-      </div>
-    </aside>
+
+        <div className="sidebar-section-title">
+          <span>History</span>
+        </div>
+
+        <div className="chat-list">
+          {chats.map(chat => (
+            <div
+              key={chat.id}
+              className={`chat-item ${chat.id === currentChatId ? 'active' : ''}`}
+              onClick={() => {
+                onSelectChat(chat.id);
+                if (window.innerWidth <= 768) onCloseMobile();
+              }}
+            >
+              {isCollapsed ? (
+                <MessageCircle size={20} style={{ color: 'var(--sidebar-text-muted)' }} />
+              ) : null}
+              <div className="chat-item-content">
+                <span className="chat-item-title">{chat.title || "New Chat"}</span>
+              </div>
+              {chat.id === currentChatId && !isCollapsed && (
+                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                  <button 
+                    className="icon-btn" 
+                    style={{ width: '28px', height: '28px', background: 'transparent', border: 'none', color: 'inherit' }}
+                    onClick={(e) => handleRename(e, chat)}
+                    title="Rename"
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button 
+                    className="icon-btn" 
+                    style={{ width: '28px', height: '28px', background: 'transparent', border: 'none', color: 'inherit' }}
+                    onClick={(e) => { e.stopPropagation(); onDeleteChat(chat.id); }}
+                    title="Delete"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+          {chats.length === 0 && !isCollapsed && (
+            <div style={{ padding: '1rem', color: 'var(--sidebar-text-muted)', fontSize: '0.85rem' }}>
+              No history yet. Start a conversation!
+            </div>
+          )}
+        </div>
+
+        <div className="sidebar-footer">
+          <button className="clear-history-btn" onClick={onCreateChat}>
+            <MessageSquarePlus size={18} />
+            <span>New Chat</span>
+          </button>
+
+          <div className="user-card" title={user?.email || 'user@example.com'}>
+            <span className="user-card-email">{user?.email || 'user@example.com'}</span>
+            <button className="logout-btn-small" onClick={handleLogout}>
+              <LogOut size={14} />
+              {!isCollapsed && <span>Log out</span>}
+            </button>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }

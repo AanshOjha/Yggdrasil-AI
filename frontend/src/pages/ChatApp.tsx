@@ -8,14 +8,11 @@ import { fetchWithAuth } from '../services/api';
 import '../App.css';
 
 function ChatApp() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [chats, setChats] = useState<Chat[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string>('');
   const [messages, setMessages] = useState<Record<string, MessageType[]>>({});
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Fetch conversations on mount
   useEffect(() => {
@@ -43,16 +40,13 @@ function ChatApp() {
     }).catch(err => console.error("Failed to fetch messages", err));
   }, [currentChatId]);
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
   const handleCreateChat = async () => {
     try {
       const newChat = await chatService.createConversation();
       setChats([newChat, ...chats]);
       setCurrentChatId(newChat.id);
       setMessages(prev => ({ ...prev, [newChat.id]: [] }));
+      if (window.innerWidth <= 768) setIsMobileOpen(false);
     } catch (err) {
       console.error(err);
     }
@@ -81,7 +75,19 @@ function ChatApp() {
   };
 
   const handleSendMessage = async (content: string) => {
-    if (!currentChatId) return;
+    let chatId = currentChatId;
+    
+    if (!chatId) {
+      try {
+        const newChat = await chatService.createConversation();
+        setChats(prev => [newChat, ...prev]);
+        setCurrentChatId(newChat.id);
+        chatId = newChat.id;
+      } catch (err) {
+        console.error(err);
+        return;
+      }
+    }
     
     const userMessage: MessageType = {
       id: Date.now().toString(),
@@ -91,7 +97,7 @@ function ChatApp() {
 
     setMessages(prev => ({
       ...prev,
-      [currentChatId]: [...(prev[currentChatId] || []), userMessage]
+      [chatId]: [...(prev[chatId] || []), userMessage]
     }));
 
     // Start AI stream
@@ -104,14 +110,14 @@ function ChatApp() {
 
     setMessages(prev => ({
       ...prev,
-      [currentChatId]: [...(prev[currentChatId] || []), initialAiMessage]
+      [chatId]: [...(prev[chatId] || []), initialAiMessage]
     }));
 
     try {
       const response = await fetchWithAuth('/chat', {
         method: 'POST',
         body: JSON.stringify({
-          conversation_id: currentChatId,
+          conversation_id: chatId,
           message: content
         })
       });
@@ -133,10 +139,10 @@ function ChatApp() {
 
         // Update the AI message chunk by chunk
         setMessages(prev => {
-          const chatMsgs = prev[currentChatId] || [];
+          const chatMsgs = prev[chatId] || [];
           return {
             ...prev,
-            [currentChatId]: chatMsgs.map(msg => 
+            [chatId]: chatMsgs.map(msg => 
               msg.id === aiMessageId ? { ...msg, content: aiContent } : msg
             )
           };
@@ -158,21 +164,17 @@ function ChatApp() {
         onCreateChat={handleCreateChat}
         onRenameChat={handleRenameChat}
         onDeleteChat={handleDeleteChat}
-        theme={theme}
-        toggleTheme={toggleTheme}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        isMobileOpen={isMobileOpen}
+        onCloseMobile={() => setIsMobileOpen(false)}
       />
       <main className="main-content">
-        <TopBar title="YGGDRASIL AI" />
-        {currentChatId ? (
-          <ChatArea 
-            messages={currentMessages} 
-            onSendMessage={handleSendMessage} 
-          />
-        ) : (
-          <div className="empty-state glass">
-            <h2>Select or create a chat to begin</h2>
-          </div>
-        )}
+        <TopBar onOpenMobileMenu={() => setIsMobileOpen(true)} />
+        <ChatArea 
+          messages={currentMessages} 
+          onSendMessage={handleSendMessage} 
+        />
       </main>
     </div>
   );

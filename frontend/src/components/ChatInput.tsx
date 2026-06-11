@@ -1,61 +1,53 @@
-import { useState, useRef, useEffect } from 'react';
-import { Send } from 'lucide-react';
+import React, { useState } from 'react';
+import { Send, FileText, RotateCcw } from 'lucide-react';
 
 interface ChatInputProps {
   onSendMessage: (content: string) => void;
 }
 
 export default function ChatInput({ onSendMessage }: ChatInputProps) {
-  const [content, setContent] = useState('');
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [input, setInput] = useState('');
 
-  const adjustHeight = () => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
-    }
-  };
-
-  useEffect(() => {
-    adjustHeight();
-  }, [content]);
-
-  const handleSend = () => {
-    if (content.trim()) {
-      onSendMessage(content.trim());
-      setContent('');
-      if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto';
-      }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      onSendMessage(input.trim());
+      setInput('');
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      handleSubmit(e);
     }
   };
 
   return (
-    <div className="input-glass">
-      <textarea
-        ref={textareaRef}
-        className="chat-textarea"
-        placeholder="Type a message... (Shift+Enter for new line)"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        onKeyDown={handleKeyDown}
-        rows={1}
-      />
-      <button 
-        className="send-btn" 
-        onClick={handleSend}
-        disabled={!content.trim()}
-      >
-        <Send size={18} />
-      </button>
+    <div className="input-container">
+      <form onSubmit={handleSubmit} className="input-glass">
+        <button type="button" className="input-action-btn" title="Attach file">
+          <FileText size={20} />
+        </button>
+        <textarea
+          className="chat-textarea"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Start typing..."
+          rows={1}
+        />
+        <button
+          type="submit"
+          className="send-btn"
+          disabled={!input.trim()}
+        >
+          <Send size={18} />
+        </button>
+      </form>
+      <div style={{ textAlign: 'center', marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+        Created by Aansh Ojha with Kratos & Atreus.
+      </div>
     </div>
   );
 }

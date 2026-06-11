@@ -1,7 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { Bot, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import type { Message as MessageType } from '../types';
 
 interface MessageProps {
@@ -15,7 +15,7 @@ export default function Message({ message }: MessageProps) {
     <div className={`message-wrapper ${isUser ? 'user' : 'ai'}`}>
       {!isUser && (
         <div className="avatar ai">
-          <Bot size={24} />
+          <span>Y</span>
         </div>
       )}
       

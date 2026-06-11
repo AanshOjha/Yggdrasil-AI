@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000/auth';
+const API_URL = `http://${window.location.hostname}:8000/auth`;
 
 export interface User {
   id: string;
@@ -44,4 +44,16 @@ export const authService = {
 
     return response.json();
   },
+
+  async getMe(): Promise<User> {
+    const token = localStorage.getItem('access_token');
+    if (!token) throw new Error('No token');
+    const response = await fetch(`${API_URL}/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!response.ok) throw new Error('Failed to fetch profile');
+    return response.json();
+  }
 };
