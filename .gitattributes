@@ -1,0 +1,12 @@
+# Exclude standard web and documentation formats from stats
+*.html linguist-vendored
+*.css linguist-vendored
+*.js linguist-vendored
+*.ts linguist-vendored
+*.tsx linguist-vendored
+*.json linguist-vendored
+*.md linguist-vendored
+*.xml linguist-vendored
+
+# Override to ensure Python remains visible and is counted
+*.py linguist-detectable=true
