@@ -1,5 +1,6 @@
 import React from 'react';
 import { MessageSquarePlus, Edit2, Trash2, LogOut, PanelLeftClose, PanelLeftOpen, MessageCircle } from 'lucide-react';
+import kratosLogo from '../assets/kratos.png';
 import type { Chat } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -47,23 +48,8 @@ export default function Sidebar({
 
   const playEasterEggAudio = () => {
     try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
-      oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); // A5
-      
-      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.05);
-      gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.5);
+      const audio = new Audio('/easter-egg.mp3');
+      audio.play();
     } catch (e) {
       console.error("Audio playback failed", e);
     }
@@ -79,7 +65,7 @@ export default function Sidebar({
         <div className="sidebar-header-top">
           <div className="sidebar-brand" onClick={playEasterEggAudio}>
             <div className="brand-icon">
-              <span>Y</span>
+              <img src={kratosLogo} alt="Kratos Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} />
             </div>
             <span className="brand-name">YGGDRASIL AI</span>
           </div>

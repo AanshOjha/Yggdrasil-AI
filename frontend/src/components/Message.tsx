@@ -2,6 +2,7 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { User } from 'lucide-react';
+import kratosLogo from '../assets/kratos.png';
 import type { Message as MessageType } from '../types';
 
 interface MessageProps {
@@ -15,7 +16,7 @@ export default function Message({ message }: MessageProps) {
     <div className={`message-wrapper ${isUser ? 'user' : 'ai'}`}>
       {!isUser && (
         <div className="avatar ai">
-          <span>Y</span>
+          <img src={kratosLogo} alt="Kratos Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px'}} />
         </div>
       )}
       
