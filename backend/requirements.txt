@@ -1,0 +1,14 @@
+openai
+azure-identity
+fastapi
+uvicorn
+openai-agents
+python-dotenv
+sqlalchemy
+alembic
+passlib[bcrypt]
+python-jose
+pydantic
+pydantic[email]
+pydantic-settings
+psycopg2-binary
