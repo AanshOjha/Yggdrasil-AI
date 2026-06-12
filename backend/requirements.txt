@@ -5,7 +5,6 @@ uvicorn
 openai-agents
 python-dotenv
 sqlalchemy
-alembic
 passlib[bcrypt]
 python-jose
 pydantic

@@ -4,7 +4,7 @@ from app.api import auth, conversations, chat
 from app.db.database import engine
 from app.models.base import Base
 
-# Note: We will use alembic for migrations, but for simple startup we can also call create_all
+# Create database tables 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Yggdrasil AI Backend")

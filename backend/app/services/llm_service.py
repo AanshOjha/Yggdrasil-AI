@@ -1,4 +1,5 @@
 import os
+# 1 thread is not blocked per user request
 from openai import AsyncOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 

@@ -10,6 +10,22 @@ Yggdrasil AI is a modern, full-stack AI chat application featuring a sleek React
 - **Modern UI/UX**: A beautiful, responsive frontend built with React, Vite, and modern CSS.
 - **Robust Backend**: High-performance asynchronous backend powered by FastAPI and SQLAlchemy.
 
+## Consideration
+Rather than using OpenAI's Response API for remembering context, I use traditional way to store previous messages, i.e., database.
+
+**Pros of response API:**
+
+- Less code.
+- OpenAI manages conversation history.
+- Easier to build a chatbot quickly.
+
+**Cons**
+
+- Ties us heavily into the OpenAI ecosystem, relying on OpenAI's specific server-side memory system.
+- Current LLMProvider setup is very flexible, I could easily swap out OpenAI for Anthropic, Gemini, or a local model.
+- With response API, we'll need to redesign how conversation memory works. 
+- Less control over exactly what context is retained and how it's managed.
+
 ## 🛠️ Tech Stack
 
 **Frontend:**
@@ -21,7 +37,7 @@ Yggdrasil AI is a modern, full-stack AI chat application featuring a sleek React
 **Backend:**
 - Python 3.x
 - FastAPI
-- SQLAlchemy & Alembic (PostgreSQL / SQLite)
+- SQLAlchemy (PostgreSQL / SQLite)
 - Uvicorn (ASGI server)
 
 ## ⚙️ How to Run Locally
@@ -73,10 +89,6 @@ docker-compose up -d
 This starts PostgreSQL on port `5432` (User: `yggdrasil`, Password: `password123`, DB: `yggdrasil`).
 *Note: Make sure to set `DATABASE_URL=postgresql://yggdrasil:password123@localhost:5432/yggdrasil` in your `.env`.*
 
-**Run Database Migrations (if applicable):**
-```bash
-alembic upgrade head
-```
 
 **Start the Backend Server:**
 ```bash

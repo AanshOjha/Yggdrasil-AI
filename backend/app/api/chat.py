@@ -39,7 +39,6 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
         # 6. Send to model and stream tokens
         try:
             async for chunk in llm.generate_stream(llm_messages):
-                print(f"Received chunk: {repr(chunk)}")
                 full_response += chunk
                 yield chunk
             print(f"Stream completed. Total response length: {len(full_response)}")

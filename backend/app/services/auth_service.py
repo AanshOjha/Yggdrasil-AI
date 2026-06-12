@@ -15,10 +15,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 salt = bcrypt.gensalt()
-def _prepare_password(password: str) -> str:
-    # Hash the password with SHA-256 before passing to bcrypt
-    # This securely bypasses bcrypt's 72-byte limit without losing entropy
-    pass
 
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))

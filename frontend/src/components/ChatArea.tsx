@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import Message from './Message';
 import ChatInput from './ChatInput';
 import type { Message as MessageType } from '../types';
