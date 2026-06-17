@@ -24,6 +24,7 @@ class ConversationRename(BaseModel):
 class MessageCreate(BaseModel):
     conversation_id: str
     message: str
+    options: Optional[List[str]] = []
 
 class MessageResponse(BaseModel):
     id: UUID

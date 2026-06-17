@@ -14,11 +14,26 @@ class LLMProvider:
         else:
             self.client = AsyncOpenAI() # Fallback to standard OpenAI if configured via standard env vars
 
-    async def generate_stream(self, messages: list):
+    async def generate_stream(self, messages: list, options: list = None):
         """
         Generate a streaming response using AsyncOpenAI.
         Format of messages: [{"role": "user", "content": "..."}]
         """
+        if options is None:
+            options = []
+
+        tools = []
+        if "web_search" in options:
+            tools.append({"type": "web_search"})
+
+        kwargs = {
+            "model": self.deployment_name,
+            "input": messages,
+            "stream": True
+        }
+        if tools:
+            kwargs["tools"] = tools
+
         if self.endpoint:
             # Instantiate the client per-request to evaluate the token_provider callable and get a fresh token string
             client = AsyncOpenAI(
@@ -28,13 +43,9 @@ class LLMProvider:
         else:
             client = self.client
 
-        print(f"Calling client.responses.create with messages: {messages}")
+        print(f"Calling client.responses.create with messages: {messages} and options: {options}")
         try:
-            stream = await client.responses.create(
-                model=self.deployment_name,
-                input=messages,
-                stream=True
-            )
+            stream = await client.responses.create(**kwargs)
             print(f"Successfully connected to Azure AI stream")
         except Exception as e:
             print(f"ERROR connecting to Azure AI: {e}")

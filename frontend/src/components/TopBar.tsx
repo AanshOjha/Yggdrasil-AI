@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Info, Menu } from 'lucide-react';
 
 interface TopBarProps {

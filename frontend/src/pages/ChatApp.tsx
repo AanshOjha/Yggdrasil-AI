@@ -74,7 +74,7 @@ function ChatApp() {
     }
   };
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, options: string[]) => {
     let chatId = currentChatId;
     
     if (!chatId) {
@@ -118,7 +118,8 @@ function ChatApp() {
         method: 'POST',
         body: JSON.stringify({
           conversation_id: chatId,
-          message: content
+          message: content,
+          options: options
         })
       });
 
