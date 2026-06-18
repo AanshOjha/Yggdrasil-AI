@@ -12,6 +12,34 @@ interface MessageProps {
 export default function Message({ message }: MessageProps) {
   const isUser = message.role === 'user';
 
+  const renderUserContent = (content: string) => {
+    try {
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed)) {
+        return parsed.map((part, index) => {
+          if (part.type === 'input_text') {
+            return <span key={index}>{part.text}</span>;
+          }
+          if (part.type === 'input_file') {
+            return (
+              <div key={index} style={{ marginTop: '0.5rem', marginBottom: '0.5rem', padding: '0.5rem', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', display: 'inline-block' }}>
+                📎 Attached: {part.file_url ? (
+                  <a href={part.file_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'none' }}>
+                    {part.file_url.split('/').pop() || 'URL'}
+                  </a>
+                ) : 'File'}
+              </div>
+            );
+          }
+          return null;
+        });
+      }
+    } catch (e) {
+      // Not JSON, just return string
+    }
+    return content;
+  };
+
   return (
     <div className={`message-wrapper ${isUser ? 'user' : 'ai'}`}>
       {!isUser && (
@@ -26,7 +54,7 @@ export default function Message({ message }: MessageProps) {
       >
         {isUser ? (
           <div className="message-content" style={{ whiteSpace: 'pre-wrap' }}>
-            {message.content}
+            {renderUserContent(message.content)}
           </div>
         ) : (
           <div className="markdown-body">

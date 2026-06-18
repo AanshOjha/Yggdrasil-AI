@@ -30,7 +30,21 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
     history = conversation_service.get_recent_messages(db, message_in.conversation_id, limit=20)
 
     # 4. Convert format for LLM
-    llm_messages = [{"role": msg.role, "content": msg.content} for msg in history]
+    import json
+    llm_messages = []
+    for msg in history:
+        content = msg.content
+        try:
+            parsed = json.loads(content)
+            if isinstance(parsed, (dict, list)):
+                content = parsed
+        except (json.JSONDecodeError, TypeError):
+            pass
+        
+        if isinstance(content, dict):
+            content = [content]
+
+        llm_messages.append({"role": msg.role, "content": content})
 
     # 5. Define streaming generator
     async def stream_response():

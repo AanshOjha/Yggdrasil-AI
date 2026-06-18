@@ -37,5 +37,22 @@ export const chatService = {
     const response = await fetchWithAuth(`/chat/${conversationId}/messages`);
     if (!response.ok) throw new Error('Failed to fetch messages');
     return response.json();
+  },
+
+  async uploadFile(file: File): Promise<{ id: string, file_id: string, filename: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetchWithAuth('/files/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    if (!response.ok) throw new Error('Failed to upload file');
+    return response.json();
+  },
+
+  async getFiles(): Promise<{ id: string, file_id: string, filename: string }[]> {
+    const response = await fetchWithAuth('/files');
+    if (!response.ok) throw new Error('Failed to fetch files');
+    return response.json();
   }
 };

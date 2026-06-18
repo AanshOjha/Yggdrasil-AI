@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import auth, conversations, chat
+from app.api import auth, conversations, chat, files
 from app.db.database import engine
 from app.models.base import Base
 
@@ -21,7 +21,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(conversations.router)
 app.include_router(chat.router)
-
+app.include_router(files.router)
 @app.get("/")
 def root():
     return {"message": "Welcome to Yggdrasil AI API"}

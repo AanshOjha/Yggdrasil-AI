@@ -13,6 +13,10 @@ Yggdrasil AI is a modern, full-stack AI chat application featuring a sleek React
 ## Consideration
 Rather than using OpenAI's Response API for remembering context, I use traditional way to store previous messages, i.e., database.
 
+## Accepted file types
+.art, .bat, .brf, .c, .cls, .css, .csv, .diff, .doc, .docx, .dot, .eml, .es, .h, .hs, .htm, .html, .hwp, .hwpx, .ics, .ifb, .java, .js, .json, .keynote, .ksh, .ltx, .mail, .markdown, .md, .mht, .mhtml, .mjs, .nws, .odt, .pages, .patch, .pdf, .pl, .pm, .pot, .ppa, .pps, .ppt, .pptx, .pwz, .py, .rst, .rtf, .scala, .sh, .shtml, .srt, .sty, .svg, .svgz, .tex, .text, .txt, .tsv, .vcf, .vtt, .wiz, .xla, .xlb, .xlc, .xlm, .xls, .xlsx, .xlt, .xlw, .xml, .yaml, .yml
+
+
 **Pros of response API:**
 
 - Less code.
