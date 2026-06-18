@@ -40,3 +40,11 @@ def get_recent_messages(db: Session, conversation_id: str, limit: int = 20):
     messages = db.query(Message).filter(Message.conversation_id == conversation_id).order_by(Message.created_at.desc()).limit(limit).all()
     # Reverse to return chronologically
     return messages[::-1]
+
+def delete_message(db: Session, message_id: str):
+    message = db.query(Message).filter(Message.id == message_id).first()
+    if message:
+        db.delete(message)
+        db.commit()
+        return True
+    return False

@@ -183,8 +183,7 @@ export default function ChatInput({ onSendMessage }: ChatInputProps) {
             placeholder="Enter file URL..." 
             value={fileUrl} 
             onChange={(e) => setFileUrl(e.target.value)}
-            className="chat-textarea"
-            style={{ flex: 1, padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+            style={{ flex: 1, padding: '0.6rem 1rem', borderRadius: '12px', border: '1px solid var(--glass-border)', background: 'var(--bg-color)', color: 'var(--text-primary)', fontSize: '0.95rem', outline: 'none' }}
           />
           <button 
             type="button" 
@@ -195,14 +194,14 @@ export default function ChatInput({ onSendMessage }: ChatInputProps) {
                 setShowUrlInput(false);
               }
             }}
-            style={{ padding: '0.5rem 1rem', borderRadius: '8px', background: 'var(--primary-color)', color: 'white', border: 'none', cursor: 'pointer' }}
+            style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', background: 'var(--accent-color)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
           >
             Attach
           </button>
           <button 
             type="button" 
             onClick={() => setShowUrlInput(false)}
-            style={{ padding: '0.5rem 1rem', borderRadius: '8px', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', cursor: 'pointer' }}
+            style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' }}
           >
             Cancel
           </button>
@@ -213,6 +212,7 @@ export default function ChatInput({ onSendMessage }: ChatInputProps) {
           type="file" 
           ref={fileInputRef} 
           style={{ display: 'none' }} 
+          accept=".art,.bat,.brf,.c,.cls,.css,.csv,.diff,.doc,.docx,.dot,.eml,.es,.h,.hs,.htm,.html,.hwp,.hwpx,.ics,.ifb,.java,.js,.json,.keynote,.ksh,.ltx,.mail,.markdown,.md,.mht,.mhtml,.mjs,.nws,.odt,.pages,.patch,.pdf,.pl,.pm,.pot,.ppa,.pps,.ppt,.pptx,.pwz,.py,.rst,.rtf,.scala,.sh,.shtml,.srt,.sty,.svg,.svgz,.tex,.text,.txt,.tsv,.vcf,.vtt,.wiz,.xla,.xlb,.xlc,.xlm,.xls,.xlsx,.xlt,.xlw,.xml,.yaml,.yml"
           onChange={handleFileChange}
         />
         <button 
@@ -222,7 +222,7 @@ export default function ChatInput({ onSendMessage }: ChatInputProps) {
           onClick={() => { setShowUrlInput(!showUrlInput); }}
           disabled={isUploading || attachedFile !== null}
         >
-          <Link size={20} color={(isUploading || attachedFile !== null) ? 'gray' : 'inherit'} />
+          <Link size={20} color={(isUploading || attachedFile !== null) ? 'gray' : 'var(--text-primary)'} />
         </button>
         <button 
           type="button" 
@@ -231,7 +231,7 @@ export default function ChatInput({ onSendMessage }: ChatInputProps) {
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading || attachedFile !== null}
         >
-          <FileText size={20} color={(isUploading || attachedFile !== null) ? 'gray' : 'inherit'} />
+          <FileText size={20} color={(isUploading || attachedFile !== null) ? 'gray' : 'var(--text-primary)'} />
         </button>
         <textarea
           className="chat-textarea"

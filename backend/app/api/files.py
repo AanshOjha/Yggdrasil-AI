@@ -11,6 +11,17 @@ import os
 
 router = APIRouter(prefix="/files", tags=["files"])
 
+ACCEPTED_EXTENSIONS = {
+    ".art", ".bat", ".brf", ".c", ".cls", ".css", ".csv", ".diff", ".doc", ".docx",
+    ".dot", ".eml", ".es", ".h", ".hs", ".htm", ".html", ".hwp", ".hwpx", ".ics",
+    ".ifb", ".java", ".js", ".json", ".keynote", ".ksh", ".ltx", ".mail", ".markdown",
+    ".md", ".mht", ".mhtml", ".mjs", ".nws", ".odt", ".pages", ".patch", ".pdf",
+    ".pl", ".pm", ".pot", ".ppa", ".pps", ".ppt", ".pptx", ".pwz", ".py", ".rst",
+    ".rtf", ".scala", ".sh", ".shtml", ".srt", ".sty", ".svg", ".svgz", ".tex",
+    ".text", ".txt", ".tsv", ".vcf", ".vtt", ".wiz", ".xla", ".xlb", ".xlc", ".xlm",
+    ".xls", ".xlsx", ".xlt", ".xlw", ".xml", ".yaml", ".yml"
+}
+
 @router.post("/upload")
 async def upload_file(
     file: UploadFile = FastAPIFile(...),
@@ -18,14 +29,12 @@ async def upload_file(
     db: Session = Depends(get_db)
 ):
     try:
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in ACCEPTED_EXTENSIONS:
+            raise HTTPException(status_code=400, detail=f"Unsupported file format: {ext}")
+            
         provider = llm_service.LLMProvider()
-        if provider.endpoint:
-            client = AsyncOpenAI(
-                base_url=provider.endpoint,
-                api_key=provider.token_provider()
-            )
-        else:
-            client = provider.client
+        client = provider._get_client()
         
         # Write to temp file to ensure compatibility with OpenAI SDK
         fd, temp_path = tempfile.mkstemp(suffix=f"_{file.filename}")

@@ -23,7 +23,7 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
 
     # 2. Save user message
     print(f"Saving user message to database...")
-    conversation_service.add_message(db, message_in.conversation_id, role="user", content=message_in.message)
+    user_msg = conversation_service.add_message(db, message_in.conversation_id, role="user", content=message_in.message)
 
     # 3. Load history (last 20 messages)
     print(f"Loading conversation history...")
@@ -58,7 +58,16 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
             print(f"Stream completed. Total response length: {len(full_response)}")
         except Exception as e:
             print(f"ERROR during LLM stream: {e}")
-            raise
+            from app.db.database import SessionLocal
+            local_db = SessionLocal()
+            try:
+                # Delete the faulty user message so it doesn't poison the history for subsequent messages
+                conversation_service.delete_message(local_db, user_msg.id)
+            finally:
+                local_db.close()
+            # Yield the error to the user so it displays in chat
+            yield f"Error: {str(e)}"
+            return
 
         # 7. Save assistant response after stream completes
         # Note: We need a new session or reuse the existing one. 
