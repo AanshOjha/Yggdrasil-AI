@@ -19,7 +19,8 @@ ACCEPTED_EXTENSIONS = {
     ".pl", ".pm", ".pot", ".ppa", ".pps", ".ppt", ".pptx", ".pwz", ".py", ".rst",
     ".rtf", ".scala", ".sh", ".shtml", ".srt", ".sty", ".svg", ".svgz", ".tex",
     ".text", ".txt", ".tsv", ".vcf", ".vtt", ".wiz", ".xla", ".xlb", ".xlc", ".xlm",
-    ".xls", ".xlsx", ".xlt", ".xlw", ".xml", ".yaml", ".yml"
+    ".xls", ".xlsx", ".xlt", ".xlw", ".xml", ".yaml", ".yml",
+    ".png", ".jpg", ".jpeg", ".webp", ".gif"
 }
 
 @router.post("/upload")

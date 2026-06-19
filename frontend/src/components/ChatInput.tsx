@@ -71,13 +71,15 @@ export default function ChatInput({ onSendMessage }: ChatInputProps) {
       if (attachedFile) {
         // Build JSON array for multimodal
         const contentArray = [];
+        const isImage = attachedFile.filename?.toLowerCase().match(/\.(png|jpe?g|webp|gif)$/);
+        
         if (input.trim()) {
           contentArray.push({ type: "input_text", text: input.trim() });
         }
         if (attachedFile.url) {
-          contentArray.push({ type: "input_file", file_url: attachedFile.url });
+          contentArray.push({ type: isImage ? "input_image" : "input_file", [isImage ? "image_url" : "file_url"]: attachedFile.url });
         } else if (attachedFile.file_id) {
-          contentArray.push({ type: "input_file", file_id: attachedFile.file_id });
+          contentArray.push({ type: isImage ? "input_image" : "input_file", file_id: attachedFile.file_id });
         }
         
         onSendMessage(JSON.stringify(contentArray), selectedOptions);
@@ -212,7 +214,7 @@ export default function ChatInput({ onSendMessage }: ChatInputProps) {
           type="file" 
           ref={fileInputRef} 
           style={{ display: 'none' }} 
-          accept=".art,.bat,.brf,.c,.cls,.css,.csv,.diff,.doc,.docx,.dot,.eml,.es,.h,.hs,.htm,.html,.hwp,.hwpx,.ics,.ifb,.java,.js,.json,.keynote,.ksh,.ltx,.mail,.markdown,.md,.mht,.mhtml,.mjs,.nws,.odt,.pages,.patch,.pdf,.pl,.pm,.pot,.ppa,.pps,.ppt,.pptx,.pwz,.py,.rst,.rtf,.scala,.sh,.shtml,.srt,.sty,.svg,.svgz,.tex,.text,.txt,.tsv,.vcf,.vtt,.wiz,.xla,.xlb,.xlc,.xlm,.xls,.xlsx,.xlt,.xlw,.xml,.yaml,.yml"
+          accept=".art,.bat,.brf,.c,.cls,.css,.csv,.diff,.doc,.docx,.dot,.eml,.es,.h,.hs,.htm,.html,.hwp,.hwpx,.ics,.ifb,.java,.js,.json,.keynote,.ksh,.ltx,.mail,.markdown,.md,.mht,.mhtml,.mjs,.nws,.odt,.pages,.patch,.pdf,.pl,.pm,.pot,.ppa,.pps,.ppt,.pptx,.pwz,.py,.rst,.rtf,.scala,.sh,.shtml,.srt,.sty,.svg,.svgz,.tex,.text,.txt,.tsv,.vcf,.vtt,.wiz,.xla,.xlb,.xlc,.xlm,.xls,.xlsx,.xlt,.xlw,.xml,.yaml,.yml,.png,.jpeg,.jpg,.webp,.gif"
           onChange={handleFileChange}
         />
         <button 
