@@ -24,7 +24,7 @@ class LLMProvider:
             # Fallback to standard OpenAI. This will raise an error if OPENAI_API_KEY is not set.
             return AsyncOpenAI()
 
-    async def generate_stream(self, messages: list, options: list = None):
+    async def generate_stream(self, messages: list, options: list = None, user=None):
         """
         Generate a streaming response using AsyncOpenAI.
         Format of messages: [{"role": "user", "content": "..."}]
@@ -33,8 +33,16 @@ class LLMProvider:
             options = []
 
         tools = []
+        include = []
         if "web_search" in options:
             tools.append({"type": "web_search"})
+            
+        if "file_search" in options and user and user.vector_store_id:
+            tools.append({
+                "type": "file_search",
+                "vector_store_ids": [user.vector_store_id]
+            })
+            include.append("file_search_call.results")
 
         load_dotenv(override=True)
         deployment_name = os.environ.get("DEPLOYMENT_NAME", "gpt-4")
@@ -46,6 +54,8 @@ class LLMProvider:
         }
         if tools:
             kwargs["tools"] = tools
+        if include:
+            kwargs["include"] = include
 
         try:
             client = self._get_client()
@@ -55,7 +65,37 @@ class LLMProvider:
             print(f"ERROR connecting to Azure AI: {e}")
             raise
 
+        used_files = set()
 
         async for chunk in stream:
             if chunk.type == "response.output_text.delta":
                 yield chunk.delta
+            
+            try:
+                # Attempt to extract from Pydantic model or dict
+                chunk_dict = chunk.model_dump() if hasattr(chunk, "model_dump") else (chunk if isinstance(chunk, dict) else getattr(chunk, "__dict__", {}))
+                
+                def extract_filenames(data):
+                    if isinstance(data, dict):
+                        if "filename" in data and isinstance(data["filename"], str):
+                            fname = data["filename"]
+                            fdata = data.get('text', '')
+                            if fname not in used_files:
+                                used_files.add(fname)
+                                print(f"Keys in data: {data.keys()}")
+                                print(f"Score: {data.get('score', 'N/A')}")
+                                print(f"Text snippet: {fdata[:200]}")
+                                print(f"File used: {fname}")
+                        for value in data.values():
+                            extract_filenames(value)
+                    elif isinstance(data, list):
+                        for item in data:
+                            extract_filenames(item)
+
+                extract_filenames(chunk_dict)
+            except Exception as e:
+                print(f"Error extracting filenames: {e}")
+                pass
+        
+        if used_files:
+            yield "\n\nSources:\n" + "\n".join([f"- {fname}" for fname in used_files])

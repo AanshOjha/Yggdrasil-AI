@@ -7,6 +7,7 @@ interface ChatInputProps {
 
 const AVAILABLE_OPTIONS = [
   { id: 'web_search', label: 'Web Search' },
+  { id: 'file_search', label: 'File Search' },
   { id: 'use_documents', label: 'Use Documents' }
 ];
 

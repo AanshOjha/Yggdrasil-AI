@@ -44,12 +44,28 @@ async def upload_file(
                 content = await file.read()
                 f.write(content)
             
+            # Lazily create vector store if needed
+            if not current_user.vector_store_id:
+                vector_store = await client.vector_stores.create(
+                    name=f"knowledge_base_{current_user.id}"
+                )
+                current_user.vector_store_id = vector_store.id
+                db.add(current_user)
+                db.commit()
+
             # Upload to OpenAI
             with open(temp_path, "rb") as f:
                 uploaded_file = await client.files.create(
                     file=f,
                     purpose="assistants"
                 )
+            
+            # Attach the file to the vector store
+            await client.vector_stores.files.create(
+                vector_store_id=current_user.vector_store_id,
+                file_id=uploaded_file.id
+            )
+
         finally:
             os.remove(temp_path)
         
