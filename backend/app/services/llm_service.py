@@ -6,6 +6,8 @@ from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 
 from dotenv import load_dotenv
 
+openai_call_count = 0
+
 class LLMProvider:
     def __init__(self):
         self.client = None
@@ -24,6 +26,19 @@ class LLMProvider:
         else:
             # Fallback to standard OpenAI. This will raise an error if OPENAI_API_KEY is not set.
             return AsyncOpenAI()
+
+    async def generate_embedding(self, text: str) -> list[float]:
+        """
+        Generate an embedding for the given text using the specified embedding model.
+        """
+        client = self._get_client()
+        model = os.environ.get("EMBEDDING_MODEL", "text-embedding-3-small")
+        try:
+            response = await client.embeddings.create(input=text, model=model)
+            return response.data[0].embedding
+        except Exception as e:
+            print(f"ERROR generating embedding: {e}")
+            raise
 
     async def generate_stream(self, messages: list, options: list = None, user=None):
         """
@@ -73,6 +88,10 @@ class LLMProvider:
         try:
             client = self._get_client()
             start_time = time.time()
+            
+            global openai_call_count
+            openai_call_count += 1
+            
             stream = await client.responses.create(**kwargs)
             print(f"Successfully connected to Azure AI stream")
         except Exception as e:

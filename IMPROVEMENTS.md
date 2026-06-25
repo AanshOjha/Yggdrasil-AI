@@ -23,15 +23,6 @@ history = conversation_service.get_recent_messages(db, message_in.conversation_i
 You are currently sending a **hard limit of the last 20 messages** in the conversation history. If the user writes long messages, 20 messages can easily exceed 2,000–5,000 tokens. 
 *Note:* Since prompt caching usually kicks in automatically for >1024 tokens (depending on your Azure configuration), your 20-message history is likely benefiting from it, but reducing this limit to `10` or `5` would still improve the TTFT for new conversations that haven't hit the cache yet.
 
-### 5. Blocking Awaits/Tasks Before First Token (Crucial Bottleneck found!)
-**Yes, you have a major latency bottleneck here.** In `chat.py`, your endpoint is defined as asynchronous (`async def chat`), but look at what happens before the stream starts:
-```python
-conversation = conversation_service.get_user_conversations(db, current_user.id) # BLOCKING DB CALL
-user_msg = conversation_service.add_message(db, message_in.conversation_id, role="user", content=message_in.message) # BLOCKING DB CALL
-history = conversation_service.get_recent_messages(db, message_in.conversation_id, limit=20) # BLOCKING DB CALL
-```
-Because you are using standard synchronous SQLAlchemy (`Session`), these database calls physically **block the Python `asyncio` event loop**. The server hangs until the database responds, delaying the moment your code finally calls `llm.generate_stream()`.
-* **The Fix:** You need to either switch to `AsyncSession` (SQLAlchemy async) OR wrap those specific synchronous database calls in `run_in_threadpool()` from FastAPI so they don't block the main event loop.
 
 ### 7. React Re-render Lag in Frontend
 **Yes, you currently have a React Re-render Lag issue.**

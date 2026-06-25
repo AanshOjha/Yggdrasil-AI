@@ -11,3 +11,4 @@ pydantic
 pydantic[email]
 pydantic-settings
 psycopg2-binary
+redis

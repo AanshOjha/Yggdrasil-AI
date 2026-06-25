@@ -22,6 +22,13 @@ app.include_router(auth.router)
 app.include_router(conversations.router)
 app.include_router(chat.router)
 app.include_router(files.router)
+
+from app.services import llm_service
+
+@app.get("/api/stats")
+def get_stats():
+    return {"openai_calls": llm_service.openai_call_count}
+
 @app.get("/")
 def root():
     return {"message": "Welcome to Yggdrasil AI API"}
