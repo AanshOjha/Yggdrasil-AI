@@ -5,6 +5,6 @@ export interface Chat {
 
 export interface Message {
   id: string;
-  role: 'user' | 'ai';
+  role: 'user' | 'ai' | 'assistant' | 'system' | 'data' | 'tool';
   content: string;
 }

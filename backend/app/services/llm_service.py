@@ -1,4 +1,5 @@
 import os
+import time
 # 1 thread is not blocked per user request
 from openai import AsyncOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
@@ -71,6 +72,7 @@ class LLMProvider:
 
         try:
             client = self._get_client()
+            start_time = time.time()
             stream = await client.responses.create(**kwargs)
             print(f"Successfully connected to Azure AI stream")
         except Exception as e:
@@ -78,9 +80,12 @@ class LLMProvider:
             raise
 
         used_files = set()
+        first_token_time = None
 
         async for chunk in stream:
             if chunk.type == "response.output_text.delta":
+                if first_token_time is None:
+                    first_token_time = time.time()
                 yield chunk.delta
             
             try:
@@ -111,3 +116,7 @@ class LLMProvider:
         
         if used_files:
             yield "\n\nSources:\n" + "\n".join([f"- {fname}" for fname in used_files])
+
+        total_time = time.time() - start_time
+        ttft = (first_token_time - start_time) if first_token_time else total_time
+        yield f"\n\n*(Latency: TTFT {ttft:.2f}s, Total {total_time:.2f}s)*"

@@ -27,7 +27,7 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
 
     # 3. Load history (last 20 messages)
     print(f"Loading conversation history...")
-    history = conversation_service.get_recent_messages(db, message_in.conversation_id, limit=20)
+    history = conversation_service.get_recent_messages(db, message_in.conversation_id, limit=10)
 
     # 4. Convert format for LLM
     import json
