@@ -44,6 +44,18 @@ class LLMProvider:
             })
             include.append("file_search_call.results")
 
+        if "github" in options:
+            mcp_server_url = os.environ.get("GITHUB_MCP_SERVER_URL", "")
+            if mcp_server_url:
+                tools.append({
+                    "type": "mcp",
+                    "server_label": "github",
+                    "server_description": "GitHub MCP server to manage repositories, branches, issues, and PRs.",
+                    "server_url": mcp_server_url,
+                    "require_approval": "never",
+                    "authorization": f"{os.environ["GITHUB_PERSONAL_ACCESS_TOKEN"]}"
+                })
+
         load_dotenv(override=True)
         deployment_name = os.environ.get("DEPLOYMENT_NAME", "gpt-4")
         

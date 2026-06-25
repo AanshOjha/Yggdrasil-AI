@@ -44,8 +44,10 @@ async def upload_file(
                 content = await file.read()
                 f.write(content)
             
-            # Lazily create vector store if needed
-            if not current_user.vector_store_id:
+            is_image = ext in {".png", ".jpg", ".jpeg", ".webp", ".gif"}
+            
+            # Lazily create vector store if needed (only for non-image files)
+            if not is_image and not current_user.vector_store_id:
                 vector_store = await client.vector_stores.create(
                     name=f"knowledge_base_{current_user.id}"
                 )
@@ -60,11 +62,12 @@ async def upload_file(
                     purpose="assistants"
                 )
             
-            # Attach the file to the vector store
-            await client.vector_stores.files.create(
-                vector_store_id=current_user.vector_store_id,
-                file_id=uploaded_file.id
-            )
+            if not is_image:
+                # Attach the document file to the vector store
+                await client.vector_stores.files.create(
+                    vector_store_id=current_user.vector_store_id,
+                    file_id=uploaded_file.id
+                )
 
         finally:
             os.remove(temp_path)
