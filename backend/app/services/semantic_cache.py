@@ -43,10 +43,36 @@ async def _ensure_index():
         except Exception as e:
             print(f"Failed to create Redis index: {e}")
 
-async def check(prompt_text: str, threshold: float = 0.85) -> str | None:
+def rerank_with_bm25(query: str, docs: list) -> list:
+    """Simple BM25 implementation using rank_bm25 library."""
+    if not docs:
+        return []
+        
+    try:
+        from rank_bm25 import BM25Okapi
+    except ImportError:
+        print("Please install rank_bm25: pip install rank-bm25")
+        return [0.0] * len(docs)
+        
+    # Tokenize query and docs by splitting on whitespace
+    query_tokens = query.lower().split()
+    tokenized_docs = [doc.lower().split() for doc in docs]
+    
+    # Initialize BM25 and get scores
+    bm25 = BM25Okapi(tokenized_docs)
+    scores = bm25.get_scores(query_tokens)
+    
+    # Normalize scores between 0 and 1 to mesh with vector similarity
+    max_s = max(scores) if len(scores) > 0 else 0
+    if max_s > 0:
+        return [float(s / max_s) for s in scores]
+    return [float(s) for s in scores]
+
+async def check(prompt_text: str, threshold: float = 0.92) -> str | None:
     """
     Check if a semantically similar prompt exists in the cache.
-    Returns the cached response if similarity > threshold, else None.
+    Uses a 2-stage reranking: Vector Search (top 5) -> BM25 Lexical Scoring.
+    Returns the cached response if embedding similarity > threshold AND BM25 score is high enough.
     """
     try:
         await _ensure_index()
@@ -58,34 +84,53 @@ async def check(prompt_text: str, threshold: float = 0.85) -> str | None:
         # Convert float list to raw bytes for Redis
         embedding_bytes = struct.pack('%sf' % len(embedding), *embedding)
         
-        # 2. Query Redis for similar vectors
-        # Using KNN vector search to find the nearest neighbor
+        # 2. Query Redis for top 5 similar vectors
         query = (
-            Query("(*)=>[KNN 1 @embedding $vec AS score]")
+            Query("(*)=>[KNN 5 @embedding $vec AS score]")
             .sort_by("score")
-            .return_fields("score", "response")
+            .return_fields("score", "response", "prompt")
             .dialect(2)
         )
         
         query_params = {"vec": embedding_bytes}
         result = await redis_client.ft(INDEX_NAME).search(query, query_params)
         
-        # 3. Process result
+        best_match_response = None
+        best_final_score = 0.0
+        
+        # 3. Process results and rerank with BM25
         if result.docs:
-            doc = result.docs[0]
-            # RediSearch returns distances for COSINE, so similarity = 1 - distance
-            # Wait, COSINE distance in Redis: 0 means exactly the same, 2 means completely opposite.
-            # So a distance of 0.1 means 0.9 similarity.
-            distance = float(doc.score)
-            similarity = 1.0 - distance
+            # Extract prompts for BM25 corpus
+            doc_prompts = []
+            for doc in result.docs:
+                dp = doc.prompt
+                if isinstance(dp, bytes): dp = dp.decode('utf-8')
+                doc_prompts.append(dp)
+                
+            bm25_scores = rerank_with_bm25(prompt_text, doc_prompts)
             
-            if similarity >= threshold:
-                print(f"Semantic cache hit! Similarity: {similarity:.4f}")
-                # Ensure the response is decoded from bytes if needed
-                response_val = doc.response
-                if isinstance(response_val, bytes):
-                    response_val = response_val.decode('utf-8')
-                return response_val
+            for idx, doc in enumerate(result.docs):
+                distance = float(doc.score)
+                vector_sim = 1.0 - distance
+                bm25_sim = bm25_scores[idx]
+                
+                final_score = 0.7 * vector_sim + 0.3 * bm25_sim
+                
+                print(f"Candidate - Vector Sim: {vector_sim:.4f}, BM25 Sim: {bm25_sim:.4f}, Final: {final_score:.4f}")
+                
+                # Check thresholds (tune as needed: vector > 0.92, BM25 > 0.3)
+                if vector_sim >= threshold and bm25_sim >= 0.3:
+                    if final_score > best_final_score:
+                        best_final_score = final_score
+                        
+                        response_val = doc.response
+                        if isinstance(response_val, bytes):
+                            response_val = response_val.decode('utf-8')
+                        best_match_response = response_val
+                        
+        if best_match_response:
+            print(f"Semantic cache hit! Final Reranked Score: {best_final_score:.4f}")
+            return best_match_response
             
         print("Semantic cache miss.")
         return None

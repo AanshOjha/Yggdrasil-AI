@@ -62,7 +62,7 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
         # Build cacheable text from recent context + current message
         cacheable_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in llm_messages])
         
-        cached_response = await semantic_cache.check(cacheable_text, threshold=0.87)
+        cached_response = await semantic_cache.check(cacheable_text, threshold=0.92)
         
         if cached_response:
             print("Using cached response.")

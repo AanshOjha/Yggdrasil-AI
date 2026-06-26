@@ -1,0 +1,12 @@
+cache_status=miss
+cache_status=miss
+cache_status=miss
+cache_status=hit
+doc_processing_time=3.57s
+cache_status=miss
+doc_processing_time=4.57s
+cache_status=miss
+cache_status=hit
+cache_status=miss
+cache_status=hit
+cache_status=miss
