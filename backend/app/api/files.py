@@ -55,6 +55,11 @@ async def upload_file(
                 db.add(current_user)
                 db.commit()
 
+            import time
+            from app.services.metrics_service import metrics_tracker
+            
+            index_start_time = time.time()
+            
             # Upload to OpenAI
             with open(temp_path, "rb") as f:
                 uploaded_file = await client.files.create(
@@ -68,6 +73,9 @@ async def upload_file(
                     vector_store_id=current_user.vector_store_id,
                     file_id=uploaded_file.id
                 )
+                
+            index_end_time = time.time()
+            await metrics_tracker.record_index_time(index_end_time - index_start_time)
 
         finally:
             os.remove(temp_path)
@@ -89,6 +97,8 @@ async def upload_file(
         }
     except Exception as e:
         print(f"Exception occurred: {str(e)}")
+        from app.services.metrics_service import metrics_tracker
+        await metrics_tracker.record_failure()
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("")

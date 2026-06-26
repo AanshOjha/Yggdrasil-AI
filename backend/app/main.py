@@ -29,6 +29,21 @@ from app.services import llm_service
 def get_stats():
     return {"openai_calls": llm_service.openai_call_count}
 
+from app.services.metrics_service import metrics_tracker
+from pydantic import BaseModel
+
+class AccuracyUpdate(BaseModel):
+    accuracy: float
+
+@app.get("/api/dashboard/metrics")
+async def get_dashboard_metrics():
+    return await metrics_tracker.get_dashboard_stats()
+
+@app.post("/api/metrics/accuracy")
+async def update_accuracy(data: AccuracyUpdate):
+    await metrics_tracker.record_retrieval_accuracy(data.accuracy)
+    return {"status": "success", "accuracy": data.accuracy}
+
 @app.get("/")
 def root():
     return {"message": "Welcome to Yggdrasil AI API"}

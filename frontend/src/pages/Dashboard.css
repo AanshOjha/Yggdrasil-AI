@@ -1,0 +1,90 @@
+.dashboard-container {
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #1e1e2f 0%, #15151f 100%);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+  background: -webkit-linear-gradient(#fff, #aaa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.back-link {
+  color: #8b5cf6;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: rgba(139, 92, 246, 0.1);
+  transition: background 0.3s ease;
+}
+
+.back-link:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.metric-card h3 {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin: 0 0 1rem 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.unit {
+  font-size: 1.2rem;
+  color: #8b5cf6;
+}
+
+.loading, .error {
+  text-align: center;
+  margin-top: 5rem;
+  font-size: 1.2rem;
+  color: #aaa;
+}

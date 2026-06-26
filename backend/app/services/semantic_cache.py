@@ -114,7 +114,7 @@ async def check(prompt_text: str, threshold: float = 0.92) -> str | None:
                 vector_sim = 1.0 - distance
                 bm25_sim = bm25_scores[idx]
                 
-                final_score = 0.7 * vector_sim + 0.3 * bm25_sim
+                final_score = 0.75 * vector_sim + 0.25 * bm25_sim
                 
                 print(f"Candidate - Vector Sim: {vector_sim:.4f}, BM25 Sim: {bm25_sim:.4f}, Final: {final_score:.4f}")
                 
@@ -130,13 +130,23 @@ async def check(prompt_text: str, threshold: float = 0.92) -> str | None:
                         
         if best_match_response:
             print(f"Semantic cache hit! Final Reranked Score: {best_final_score:.4f}")
+            
+            from app.services.metrics_service import metrics_tracker
+            await metrics_tracker.record_cache_hit()
+            
             return best_match_response
             
         print("Semantic cache miss.")
+        
+        from app.services.metrics_service import metrics_tracker
+        await metrics_tracker.record_cache_miss()
+        
         return None
         
     except Exception as e:
         print(f"Redis cache check failed (falling back to normal flow): {e}")
+        from app.services.metrics_service import metrics_tracker
+        await metrics_tracker.record_failure()
         return None
 
 async def store(prompt_text: str, response_text: str, model_name: str):
@@ -168,3 +178,5 @@ async def store(prompt_text: str, response_text: str, model_name: str):
         
     except Exception as e:
         print(f"Failed to store in semantic cache: {e}")
+        from app.services.metrics_service import metrics_tracker
+        await metrics_tracker.record_failure()

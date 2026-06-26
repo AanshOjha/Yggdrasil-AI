@@ -52,11 +52,13 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
         full_response = ""
         
         from app.services import semantic_cache
+        from app.services.metrics_service import metrics_tracker
         import os
         import asyncio
         import time
         import re
         
+        await metrics_tracker.record_request()
         start_time = time.time()
         
         # Build cacheable text from recent context + current message
@@ -74,6 +76,10 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
             latency_string = f"\n\n*(⚡ Cache Hit Latency: {cache_time:.2f}s)*"
             full_response = clean_response + latency_string
             yield full_response
+            
+            # Record metrics
+            total_time_ms = (time.time() - start_time) * 1000
+            await metrics_tracker.record_latency(total_time_ms)
         else:
             # 6. Send to model and stream tokens
             try:
@@ -87,8 +93,17 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
                 model_name = os.environ.get("DEPLOYMENT_NAME", "gpt-4")
                 asyncio.create_task(semantic_cache.store(cacheable_text, clean_response, model_name))
                 
+                # Record metrics
+                input_tokens = len(cacheable_text) // 4
+                output_tokens = len(clean_response) // 4
+                await metrics_tracker.record_tokens(input_tokens, output_tokens)
+                
+                total_time_ms = (time.time() - start_time) * 1000
+                await metrics_tracker.record_latency(total_time_ms)
+                
             except Exception as e:
                 print(f"ERROR during LLM stream: {e}")
+                await metrics_tracker.record_failure()
                 from app.db.database import SessionLocal
                 local_db = SessionLocal()
                 try:

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquarePlus, Edit2, Trash2, LogOut, PanelLeftClose, PanelLeftOpen, MessageCircle } from 'lucide-react';
+import { MessageSquarePlus, Edit2, Trash2, LogOut, PanelLeftClose, PanelLeftOpen, MessageCircle, BarChart2 } from 'lucide-react';
 import kratosLogo from '../assets/kratos.png';
 import type { Chat } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -71,6 +71,19 @@ export default function Sidebar({
           </div>
           <button className="toggle-sidebar-btn" onClick={onToggleCollapse}>
             {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+          </button>
+        </div>
+
+
+
+        <div style={{ padding: '0 12px', marginTop: '1rem' }}>
+          <button 
+            className="clear-history-btn" 
+            style={{ width: '100%', marginBottom: '0.5rem', background: 'rgba(255,255,255,0.05)', color: '#fff' }}
+            onClick={() => navigate('/dashboard')}
+          >
+            <BarChart2 size={18} />
+            <span>{!isCollapsed && "Dashboard"}</span>
           </button>
         </div>
 
