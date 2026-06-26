@@ -1,16 +1,16 @@
 import requests
 
 API_URL = "http://localhost:8000/chat"
-TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4N2M4YzdhZC1jZTI2LTQ0OGYtOWYzMi00NWFiMmFlNTgwODEiLCJleHAiOjE3ODMwODUxNTl9.zPWY4bGXBjA4I3aL61uEltgbl54r6FA9cdIRkbbwyB0"
+TOKEN = str(input("Enter bearer token:\n"))
 
-CONVERSATION_ID = "c8d06291-77d6-4ddb-b8d8-5339008a9319"
+CONVERSATION_ID = str(input("Enter conversation ID:\n"))
 
 HEADERS = {
     "Authorization": f"Bearer {TOKEN}",
     "Content-Type": "application/json"
 }
 
-with open("questions.txt", "r", encoding="utf-8") as f:
+with open("30-2-questions.txt", "r", encoding="utf-8") as f:
     questions = [line.strip() for line in f if line.strip()]
 
 print(f"Loaded {len(questions)} questions.\n")

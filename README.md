@@ -1,20 +1,38 @@
 # Yggdrasil AI 🌳
 
-Yggdrasil AI is a modern, full-stack AI chat application featuring a sleek React frontend and a powerful FastAPI backend, powered by state-of-the-art LLMs (like Google's Gemini).
+Yggdrasil AI is a modern, full-stack smart AI chat application featuring a sleek React frontend and a powerful FastAPI backend, powered by state-of-the-art LLM of Azure Foundry.
 
 ## 🚀 Features
 
-- **Conversational AI**: Engage in seamless, context-aware conversations with an advanced LLM.
-- **User Authentication**: Secure user registration and login system with session management.
-- **Chat History**: Save and organize multiple conversation threads.
-- **Modern UI/UX**: A beautiful, responsive frontend built with React, Vite, and modern CSS.
-- **Robust Backend**: High-performance asynchronous backend powered by FastAPI and SQLAlchemy.
+### 🧠 Advanced Backend Engineering
+- **2-Stage Semantic Caching Engine**: 
+  - Utilizes **Redis (RediSearch)** as a high-performance vector database.
+  - Implements a sophisticated 2-stage reranking pipeline: 
+    - **Stage 1**: Dense Vector Search using Cosine Similarity for semantic matching.
+    - **Stage 2**: BM25 Lexical Reranking (`rank_bm25`) for keyword precision.
+  - Drastically reduces LLM latency and API costs by serving high-confidence cached responses.
+- **Comprehensive Telemetry & Metrics Dashboard**: 
+  - Real-time tracking of Time to First Token (TTFT), overall Generation Time, and granular latency metrics (Redis lookups, BM25 reranking).
+  - Built-in cost estimation and token usage monitoring (Input/Output).
+  - Tracks Cache Hit Rates and system failures for reliability monitoring.
+- **Extensible LLM Provider (Azure & Standard OpenAI)**: 
+  - Asynchronous streaming architecture (`AsyncOpenAI`) for fluid user experiences.
+  - Native integration with advanced tools: Web Search, File Search/RAG, and **Model Context Protocol (MCP)** integration (e.g., GitHub server) for agentic capabilities.
+- **Native RAG & File Management**: 
+  - Supports uploading a wide variety of document types for Retrieval-Augmented Generation.
+  - Seamless integration with OpenAI's Assistant API Vector Stores.
+- **High-Performance Architecture**: Built on top of FastAPI and SQLAlchemy (PostgreSQL/SQLite) with background task offloading.
+
+### 🎨 Frontend UI/UX
+- **Modern Interface**: A clean, responsive frontend built with React and Vite.
 
 ## Consideration
 Rather than using OpenAI's Response API for remembering context, I use traditional way to store previous messages, i.e., database.
 
 ## Accepted file types
 .art, .bat, .brf, .c, .cls, .css, .csv, .diff, .doc, .docx, .dot, .eml, .es, .h, .hs, .htm, .html, .hwp, .hwpx, .ics, .ifb, .java, .js, .json, .keynote, .ksh, .ltx, .mail, .markdown, .md, .mht, .mhtml, .mjs, .nws, .odt, .pages, .patch, .pdf, .pl, .pm, .pot, .ppa, .pps, .ppt, .pptx, .pwz, .py, .rst, .rtf, .scala, .sh, .shtml, .srt, .sty, .svg, .svgz, .tex, .text, .txt, .tsv, .vcf, .vtt, .wiz, .xla, .xlb, .xlc, .xlm, .xls, .xlsx, .xlt, .xlw, .xml, .yaml, .yml
+
+Images: .png, .jpg, .jpeg, .webp, .gif
 
 
 **Pros of response API:**

@@ -39,6 +39,11 @@ class AccuracyUpdate(BaseModel):
 async def get_dashboard_metrics():
     return await metrics_tracker.get_dashboard_stats()
 
+@app.post("/api/dashboard/reset")
+async def reset_dashboard_metrics():
+    await metrics_tracker.reset_metrics()
+    return {"status": "success"}
+
 @app.post("/api/metrics/accuracy")
 async def update_accuracy(data: AccuracyUpdate):
     await metrics_tracker.record_retrieval_accuracy(data.accuracy)

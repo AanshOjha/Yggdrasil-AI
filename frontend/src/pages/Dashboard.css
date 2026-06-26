@@ -77,6 +77,17 @@
   gap: 4px;
 }
 
+.sub-metrics {
+  margin-top: 8px;
+  color: #aaa;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.sub-metrics small {
+  font-size: 0.85rem;
+}
+
 .unit {
   font-size: 1.2rem;
   color: #8b5cf6;

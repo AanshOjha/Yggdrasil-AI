@@ -68,7 +68,7 @@ def rerank_with_bm25(query: str, docs: list) -> list:
         return [float(s / max_s) for s in scores]
     return [float(s) for s in scores]
 
-async def check(prompt_text: str, threshold: float = 0.92) -> str | None:
+async def check(prompt_text: str, threshold: float = 0.87) -> str | None:
     """
     Check if a semantically similar prompt exists in the cache.
     Uses a 2-stage reranking: Vector Search (top 5) -> BM25 Lexical Scoring.
@@ -93,13 +93,21 @@ async def check(prompt_text: str, threshold: float = 0.92) -> str | None:
         )
         
         query_params = {"vec": embedding_bytes}
+        
+        lookup_start = time.time()
         result = await redis_client.ft(INDEX_NAME).search(query, query_params)
+        lookup_ms = (time.time() - lookup_start) * 1000
+        
+        from app.services.metrics_service import metrics_tracker
+        await metrics_tracker.record_redis_lookup_latency(lookup_ms)
         
         best_match_response = None
         best_final_score = 0.0
         
         # 3. Process results and rerank with BM25
         if result.docs:
+            bm25_start = time.time()
+            
             # Extract prompts for BM25 corpus
             doc_prompts = []
             for doc in result.docs:
@@ -127,6 +135,9 @@ async def check(prompt_text: str, threshold: float = 0.92) -> str | None:
                         if isinstance(response_val, bytes):
                             response_val = response_val.decode('utf-8')
                         best_match_response = response_val
+            
+            bm25_ms = (time.time() - bm25_start) * 1000
+            await metrics_tracker.record_bm25_latency(bm25_ms)
                         
         if best_match_response:
             print(f"Semantic cache hit! Final Reranked Score: {best_final_score:.4f}")
@@ -173,7 +184,13 @@ async def store(prompt_text: str, response_text: str, model_name: str):
             "embedding": embedding_bytes
         }
         
+        store_start = time.time()
         await redis_client.hset(key, mapping=mapping)
+        store_ms = (time.time() - store_start) * 1000
+        
+        from app.services.metrics_service import metrics_tracker
+        await metrics_tracker.record_cache_store_latency(store_ms)
+        
         print(f"Stored response in semantic cache with key {key}")
         
     except Exception as e:

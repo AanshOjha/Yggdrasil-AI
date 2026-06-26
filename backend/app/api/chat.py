@@ -83,9 +83,21 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
         else:
             # 6. Send to model and stream tokens
             try:
+                first_token_received = False
+                llm_start_time = time.time()
+                
                 async for chunk in llm.generate_stream(llm_messages, options=message_in.options, user=current_user):
+                    if not first_token_received and chunk and not chunk.startswith("\\n\\n*(Latency:"):
+                        first_token_received = True
+                        ttft_ms = (time.time() - llm_start_time) * 1000
+                        await metrics_tracker.record_ttft(ttft_ms)
+                        
                     full_response += chunk
                     yield chunk
+                    
+                gen_time_ms = (time.time() - llm_start_time) * 1000
+                await metrics_tracker.record_generation_time(gen_time_ms)
+                
                 print(f"Stream completed. Total response length: {len(full_response)}")
                 
                 # Store in cache in the background, stripping the latency tag
