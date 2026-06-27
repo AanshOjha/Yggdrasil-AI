@@ -9,6 +9,7 @@ The project focuses on building an AI application the way modern AI products are
 ---
 
 ## [Demonstration Video](https://drive.google.com/file/d/1VrE8et63TuOTyFVrUsJpj59LURlKqv4y/view?usp=sharing)
+Switch to latest version in branches to see latest development.
 
 ## Why Yggdrasil AI?
 ![](https://raw.githubusercontent.com/TonyStarkCodes/Media/refs/heads/main/image.png)
