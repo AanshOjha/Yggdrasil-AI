@@ -46,30 +46,6 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
         if isinstance(content, dict):
             content = [content]
 
-        if isinstance(content, list):
-            new_content = []
-            client = llm._get_client()
-            for item in content:
-                if isinstance(item, dict) and item.get("type") == "input_file":
-                    file_id = item.get("file_id")
-                    if file_id:
-                        db_file = db.query(File).filter(File.openai_file_id == file_id).first()
-                        if db_file:
-                            ext = db_file.filename.lower().split('.')[-1]
-                            if ext != 'pdf':
-                                try:
-                                    file_response = await client.files.content(file_id)
-                                    file_text = file_response.read().decode('utf-8')
-                                    new_content.append({
-                                        "type": "input_text",
-                                        "text": f"\n\n--- Content of {db_file.filename} ---\n{file_text}\n--- End of {db_file.filename} ---\n"
-                                    })
-                                    continue
-                                except Exception as e:
-                                    print(f"Error downloading file {file_id} content: {e}")
-                new_content.append(item)
-            content = new_content
-
         llm_messages.append({"role": msg.role, "content": content})
 
     # 4.5. Add Skill Router System Prompt
@@ -95,10 +71,18 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
         await metrics_tracker.record_request()
         start_time = time.time()
         
-        # Build cacheable text from recent context + current message
-        cacheable_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in llm_messages])
+        # # Build cacheable text from recent context + current message
+        # cacheable_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in llm_messages])
         
-        cached_response = await semantic_cache.check(cacheable_text, threshold=0.92)
+
+        # Build cacheable text using ONLY the system prompt and current message to maximize cache hits.
+        # Note: This ignores conversation history for caching, which is great for standalone
+        # questions but can cause issues if users ask context-dependent follow-ups like "What about it?"
+        system_msg = next((msg['content'] for msg in llm_messages if msg['role'] == 'system'), "")
+        current_msg = next((msg['content'] for msg in reversed(llm_messages) if msg['role'] == 'user'), "")
+        cacheable_text = f"System: {system_msg}\nUser: {current_msg}"
+
+        cached_response = await semantic_cache.check(cacheable_text, threshold=0.87)
         
         if cached_response:
             print("Using cached response.")

@@ -10,7 +10,7 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-with open("30-2-questions.txt", "r", encoding="utf-8") as f:
+with open("30-questions.txt", "r", encoding="utf-8") as f:
     questions = [line.strip() for line in f if line.strip()]
 
 print(f"Loaded {len(questions)} questions.\n")

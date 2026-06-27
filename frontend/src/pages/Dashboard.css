@@ -1,20 +1,26 @@
 .dashboard-container {
-  min-height: 100vh;
-  padding: 2rem;
+  height: 100vh;
+  width: 100vw;
+  padding: 1.5rem;
+  box-sizing: border-box;
   background: linear-gradient(135deg, #1e1e2f 0%, #15151f 100%);
   color: #fff;
   font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
 }
 
 .dashboard-header h1 {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 3vh, 2rem);
   font-weight: 600;
   margin: 0;
   background: -webkit-linear-gradient(#fff, #aaa);
@@ -30,6 +36,7 @@
   border-radius: 8px;
   background: rgba(139, 92, 246, 0.1);
   transition: background 0.3s ease;
+  font-size: clamp(0.8rem, 1.5vh, 1rem);
 }
 
 .back-link:hover {
@@ -38,8 +45,18 @@
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 1rem;
+  flex-grow: 1;
+  min-height: 0;
+}
+
+@media (max-width: 1024px) {
+  .metrics-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
 }
 
 .metric-card {
@@ -47,10 +64,14 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .metric-card:hover {
@@ -60,15 +81,15 @@
 }
 
 .metric-card h3 {
-  font-size: 0.9rem;
+  font-size: clamp(0.7rem, 1.5vh, 0.9rem);
   color: #aaa;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.5rem 0;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .metric-value {
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 4vh, 2.5rem);
   font-weight: 700;
   margin: 0;
   color: #fff;
@@ -78,18 +99,18 @@
 }
 
 .sub-metrics {
-  margin-top: 8px;
+  margin-top: 0.5rem;
   color: #aaa;
-  font-size: 0.85rem;
-  line-height: 1.4;
+  font-size: clamp(0.7rem, 1.5vh, 0.85rem);
+  line-height: 1.3;
 }
 
 .sub-metrics small {
-  font-size: 0.85rem;
+  font-size: inherit;
 }
 
 .unit {
-  font-size: 1.2rem;
+  font-size: clamp(0.8rem, 2vh, 1.2rem);
   color: #8b5cf6;
 }
 

@@ -3,7 +3,7 @@ import { fetchWithAuth } from '../services/api';
 import './Dashboard.css';
 import { Link } from 'react-router-dom';
 
-interface DashboardMetrics {
+interface DashboardMetrics {  
   average_latency_s: number;
   cache_hits: number;
   cache_misses: number;
@@ -47,7 +47,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>AI System Dashboard</h1>
+        <h1>Yggdrasil Dashboard</h1>
         <Link to="/" className="back-link">Back to Chat</Link>
       </div>
 
@@ -59,7 +59,7 @@ const Dashboard: React.FC = () => {
             <h3>Average Latency</h3>
             <p className="metric-value">{metrics.average_latency_s.toFixed(2)} <span className="unit">s</span></p>
           </div>
-          
+
           <div className="metric-card">
             <h3>Cache Hit Rate</h3>
             <p className="metric-value">{(metrics.cache_hit_rate * 100).toFixed(0)} <span className="unit">%</span></p>
@@ -67,12 +67,12 @@ const Dashboard: React.FC = () => {
               <small>Hits: {metrics.cache_hits} | Misses: {metrics.cache_misses}</small>
             </div>
           </div>
-          
+
           <div className="metric-card">
             <h3>Cache Timings</h3>
             <div className="sub-metrics">
-              <small>Lookup: {metrics.average_redis_lookup_ms.toFixed(1)} ms</small><br/>
-              <small>BM25: {metrics.average_bm25_latency_ms.toFixed(1)} ms</small><br/>
+              <small>Lookup: {metrics.average_redis_lookup_ms.toFixed(1)} ms</small><br />
+              <small>BM25: {metrics.average_bm25_latency_ms.toFixed(1)} ms</small><br />
               <small>Store: {metrics.average_cache_store_ms.toFixed(1)} ms</small>
             </div>
           </div>
@@ -101,7 +101,7 @@ const Dashboard: React.FC = () => {
           <div className="metric-card">
             <h3>LLM Timings</h3>
             <div className="sub-metrics" style={{ marginTop: '5px' }}>
-              <small>TTFT: {metrics.average_ttft_ms.toFixed(1)} ms</small><br/>
+              <small>TTFT: {metrics.average_ttft_ms.toFixed(1)} ms</small><br />
               <small>Gen Time: {metrics.average_generation_time_ms.toFixed(1)} ms</small>
             </div>
           </div>
@@ -124,8 +124,8 @@ const Dashboard: React.FC = () => {
           <div className="metric-card">
             <h3>Retrieval Accuracy</h3>
             <p className="metric-value">
-              {metrics.retrieval_accuracy !== null 
-                ? `${(metrics.retrieval_accuracy * 100).toFixed(1)}%` 
+              {metrics.retrieval_accuracy !== null
+                ? `${(metrics.retrieval_accuracy * 100).toFixed(1)}%`
                 : 'N/A'}
             </p>
           </div>
