@@ -8,6 +8,8 @@ from app.api.auth import get_current_user
 from app.schemas.chat import MessageCreate
 from app.services import conversation_service
 from app.services.llm_service import LLMProvider
+from app.services.skill_router import route_skill
+from app.models.file import File
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 llm = LLMProvider()
@@ -44,8 +46,40 @@ async def chat(message_in: MessageCreate, current_user: User = Depends(get_curre
         if isinstance(content, dict):
             content = [content]
 
+        if isinstance(content, list):
+            new_content = []
+            client = llm._get_client()
+            for item in content:
+                if isinstance(item, dict) and item.get("type") == "input_file":
+                    file_id = item.get("file_id")
+                    if file_id:
+                        db_file = db.query(File).filter(File.openai_file_id == file_id).first()
+                        if db_file:
+                            ext = db_file.filename.lower().split('.')[-1]
+                            if ext != 'pdf':
+                                try:
+                                    file_response = await client.files.content(file_id)
+                                    file_text = file_response.read().decode('utf-8')
+                                    new_content.append({
+                                        "type": "input_text",
+                                        "text": f"\n\n--- Content of {db_file.filename} ---\n{file_text}\n--- End of {db_file.filename} ---\n"
+                                    })
+                                    continue
+                                except Exception as e:
+                                    print(f"Error downloading file {file_id} content: {e}")
+                new_content.append(item)
+            content = new_content
+
         llm_messages.append({"role": msg.role, "content": content})
 
+    # 4.5. Add Skill Router System Prompt
+    print(f"Executing skill router...")
+    user_files = db.query(File).filter(File.user_id == current_user.id).all()
+    system_prompt = route_skill(message_in.message, user_files)
+    
+    if system_prompt:
+        llm_messages.insert(0, {"role": "system", "content": system_prompt})
+        
     # 5. Define streaming generator
     async def stream_response():
         print(f"Started stream_response generator")
