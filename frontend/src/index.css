@@ -7,15 +7,15 @@
   --text-secondary: #6b7280;
   
   /* Sidebar Palette */
-  --sidebar-bg: #1c1f26; /* Dark slate */
+  --sidebar-bg: #1B1B1B; /* Dark slate */
   --sidebar-text: #f3f4f6;
   --sidebar-text-muted: #9ca3af;
   --sidebar-hover: #2d3139;
   
   /* Brand/Accent */
-  --accent-color: #f97316; /* Vibrant Orange */
-  --accent-hover: #ea580c;
-  --accent-gradient: linear-gradient(135deg, #fb923c, #ea580c);
+  --accent-color: #922929; /* Vibrant Orange */
+  --accent-hover: #660000;
+  --accent-gradient: linear-gradient(135deg, #922929, #660000);
   
   /* Chat Bubbles */
   --chat-user-bg: #ffffff;
@@ -35,7 +35,7 @@
   --bg-color: #111111;
   --text-primary: #f3f4f6;
   --text-secondary: #9ca3af;
-  --sidebar-bg: #1c1f26;
+  --sidebar-bg: #1B1B1B;
   --chat-user-bg: #1f2937;
   --chat-user-border: #374151;
   --chat-ai-bg: transparent;

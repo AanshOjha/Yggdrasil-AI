@@ -28,7 +28,7 @@ export default function TopBar({ onOpenMobileMenu }: TopBarProps) {
         <button className="icon-btn mobile-menu-btn" onClick={onOpenMobileMenu} style={{ border: 'none', boxShadow: 'none' }}>
           <Menu size={24} />
         </button>
-        AI Chat Helper
+        Let's Talk.
       </div>
       <div className="top-bar-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <button className="stats-badge" onClick={fetchStats} style={{ fontSize: '0.85rem', fontWeight: 'bold', background: 'var(--accent-color, #4a90e2)', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '12px', border: 'none', cursor: 'pointer' }}>
